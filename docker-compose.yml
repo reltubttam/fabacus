@@ -1,0 +1,21 @@
+version: '3'
+
+services:
+  app:
+    image: events
+    build: .
+    volumes:
+      - ./:/dist/
+    ports:
+      - 3000:3000
+    command: node .
+    environment:
+      LOG_LVL: DEBUG
+      PORT: 3000
+      REDIS_URL: redis:6379
+    depends_on:
+      - redis
+  redis:
+    image: redis:alpine
+    ports:
+      - 6379:6379
