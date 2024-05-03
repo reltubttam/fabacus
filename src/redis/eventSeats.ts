@@ -37,7 +37,8 @@ export async function getAllEventSeats(id: string) {
 export async function getEventSeat(eventId: string, seatId: string) {
   const seatJson = await client.hget(`EVENT_${eventId}`, seatId);
   if (!seatJson) throw new Error('no seat found');
-  return JSON.parse(seatJson);
+  const seat:Seat = JSON.parse(seatJson);
+  return seat;
 }
 
 export async function setEventSeat(eventId: string, seatId: string, seat: Seat) {

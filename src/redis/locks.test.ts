@@ -1,4 +1,5 @@
 import {aquireSeatLock, releaseSeatLock} from './locks';
+import {LOCK_EXPIRY_MS} from '../config'
 
 const redisClientMock: any = {
   multi: jest.fn(() => redisClientMock),
@@ -27,7 +28,7 @@ describe('aquireSeatLock', () => {
     const result = await aquireSeatLock('ID');
     expect(redisClientMock.multi.mock.calls).toEqual([[]]);
     expect(redisClientMock.set.mock.calls[0][0]).toEqual('SEAT_LOCK_ID');
-    expect(redisClientMock.set.mock.calls[0].slice(-3)).toEqual(['PX', 1000, 'NX']);
+    expect(redisClientMock.set.mock.calls[0].slice(-3)).toEqual(['PX', LOCK_EXPIRY_MS, 'NX']);
     expect(redisClientMock.get.mock.calls).toEqual([['SEAT_LOCK_ID']]);
     expect(redisClientMock.exec.mock.calls).toEqual([[]]);
     expect(result).toEqual(false);
@@ -41,7 +42,7 @@ describe('aquireSeatLock', () => {
 
     const result = await aquireSeatLock('ID');
     expect(redisClientMock.multi.mock.calls).toEqual([[]]);
-    expect(redisClientMock.set.mock.calls).toEqual([['SEAT_LOCK_ID', randomNumber, 'PX', 1000, 'NX']]);
+    expect(redisClientMock.set.mock.calls).toEqual([['SEAT_LOCK_ID', randomNumber, 'PX', LOCK_EXPIRY_MS, 'NX']]);
     expect(redisClientMock.get.mock.calls).toEqual([['SEAT_LOCK_ID']]);
     expect(redisClientMock.exec.mock.calls).toEqual([[]]);
     expect(result).toEqual(true);
