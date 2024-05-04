@@ -1,5 +1,16 @@
-import {createEventValidation, userIdValidation} from './validation';
+import {createEventValidation, userIdValidation, holdSeatValidation} from './validation';
 import { Request, Response, NextFunction } from 'express';
+
+const getAllEventSeatsMock = jest.fn()
+jest.mock('../redis/eventSeats', () => {
+  return {
+    getAllEventSeats: (...args:any[]) => getAllEventSeatsMock(...args),
+  };
+});
+
+afterEach(() => {
+  jest.clearAllMocks();
+});
 
 describe('userIdValidation', () => {
   it('expects x-user-id in headers', async () => {
@@ -45,6 +56,75 @@ describe('createEventValidation', () => {
     const next = jest.fn();
     createEventValidation(
       {body: {numSeats: 314}} as any as Request, 
+      null as any as Response, 
+      next
+    );
+    expect(next.mock.calls).toEqual([[]]);
+  });
+});
+
+describe('holdSeatValidation', () => {
+  it('disallows if user holds too many seats', async () => {
+    const req:Request = {
+      headers: {
+        'x-user-id': 'foo'
+      },
+      params: {
+        eventId: "EVENT_ID",
+        seatId: "SEAT_ID",
+      }
+    } as any
+    const next = jest.fn();
+    getAllEventSeatsMock.mockImplementation(() => ([
+      {
+        "seatId": "OTHER_EVENT_ID",
+        "status": "reserved",
+        "userId": "foo"
+      },
+      {
+        "seatId": "OTHER_EVENT_ID",
+        "status": "reserved",
+        "userId": "foo"
+      },
+      {
+        "seatId": "OTHER_EVENT_ID",
+        "status": "reserved",
+        "userId": "foo"
+      },
+    ]))
+    await holdSeatValidation(
+      req, 
+      null as any as Response, 
+      next
+    );
+    expect(next.mock.calls[0][0].message).toEqual('limit of 3 seats per event reached by user');
+  });
+
+  it('disallows if user holds too many seats', async () => {
+    const req:Request = {
+      headers: {
+        'x-user-id': 'foo'
+      },
+      params: {
+        eventId: "EVENT_ID",
+        seatId: "SEAT_ID",
+      }
+    } as any
+    const next = jest.fn();
+    getAllEventSeatsMock.mockImplementation(() => ([
+      {
+        "seatId": "OTHER_EVENT_ID",
+        "status": "reserved",
+        "userId": "foo"
+      },
+      {
+        "seatId": "OTHER_EVENT_ID",
+        "status": "reserved",
+        "userId": "foo"
+      },
+    ]))
+    await holdSeatValidation(
+      req, 
       null as any as Response, 
       next
     );
