@@ -1,9 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 
-export default function (err: Error, req: Request, res: Response, next: NextFunction) {
-  console.error(err.message);
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export default function errorHandler(err: Error, req: Request, res: Response, next: NextFunction) {
+  console.error('ERROR', err.message);
 
-  res.status(500).send({
+  res.status(500).json({
     message: err.message,
     ok: false,
   });
