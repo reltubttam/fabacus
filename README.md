@@ -1,6 +1,6 @@
 # Event Seat Booking
 
-The following service supporting a busy online reservation system using NodeJS, Redis and Docker.  Locking has been implemented for concurrent attempts to hold seats due to this business.  Events have been modeled as collections of seats and are decoupled from these locks should a move to a database (SQL or noSQL) more suitable be required.
+The following service supporting a busy online reservation system using NodeJS, Redis and Docker.  Locking has been implemented for concurrent attempts to hold seats due to this busyness.  Events have been modeled as collections of seats and are decoupled from these locks should a move to a database (SQL or noSQL) more suitable be required.
 
 ## API
 The following routes all require an x-user-id to be sent along with the requests.  In practise, some authorisation & authentication controls would be needed here.
@@ -60,3 +60,22 @@ npm t
 ```
 npm run lint
 ```
+
+### fix linting
+```
+npm run lint -- --fix
+```
+
+## environment variables
+all can be set in `docker-compose.yml` with defaults in `src/config.ts`
+
+### PORT
+port the service will listen on
+### REDIS_URL
+address at which redis can be reached
+### LOCK_EXPIRY_MS
+time window in which unresolved locks on multiple users attempting to hold the same seat will clear.  Will only be relevant if the app is killed during an attempt to hold a seat
+### HOLD_EXPIRY_MS
+maximum duration between a user holding a seat and finalising the reservation
+### MAX_EVENT_SEATS_PER_USER
+maximum number of seats assignable to a user.  Includes holds and reservations

@@ -10,9 +10,11 @@ services:
       - 3000:3000
     command: node .
     environment:
-      LOG_LVL: DEBUG
       PORT: 3000
       REDIS_URL: redis:6379
+      LOCK_EXPIRY_MS: 1000
+      HOLD_EXPIRY_MS: 60000
+      MAX_EVENT_SEATS_PER_USER: 3
     depends_on:
       - redis
   redis:
